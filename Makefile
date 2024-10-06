@@ -1,5 +1,10 @@
 # Where to find Factorio files
-FACTORIO_ROOT="$(HOME)/Library/Application Support/Steam/SteamApps/common/Factorio/factorio.app/Contents/"
+# TODO: add logic to detect OS and then use appropiate dir (maybe try to use steamtnkerlaunch/parse steam .vdf files to figure out factorio install dir)
+# TODO: consider switching to justfiles
+
+ifndef FACTORIO_ROOT
+    $(error FACTORIO_ROOT is not set, exiting)
+endif
 
 # Output file format. PDF recommended.
 # SVG can render tooltips - but they don't contain anything other than debug information.
@@ -15,13 +20,13 @@ UNFLATTEN=unflatten
 
 all: recipes-all.$(OUTFORMAT) recipes-filtered.$(OUTFORMAT) techtree-all.$(OUTFORMAT)
 
-recipes-all.$(OUTFORMAT): recipes.lua utils.lua
+recipes-all.$(OUTFORMAT):
 	$(LUA) -e 'FACTORIO_ROOT=$(FACTORIO_ROOT)' recipes.lua | $(UNFLATTEN) | $(DOT) -T $(OUTFORMAT) -o $@
 
-recipes-filtered.$(OUTFORMAT): recipes.lua utils.lua
+recipes-filtered.$(OUTFORMAT):
 	$(LUA) -e 'FACTORIO_ROOT=$(FACTORIO_ROOT)' -e 'FILTER=true' recipes.lua | $(UNFLATTEN) | $(DOT) -T $(OUTFORMAT) -o $@
 
-techtree-all.$(OUTFORMAT): techtree.lua utils.lua
+techtree-all.$(OUTFORMAT):
 	$(LUA) -e 'FACTORIO_ROOT=$(FACTORIO_ROOT)' $? | $(DOT) -T $(OUTFORMAT) -o $@
 	
 clean:

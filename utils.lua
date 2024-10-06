@@ -8,6 +8,31 @@ TRANSLATE = TRANSLATE or true
 
 translations = {}
 
+local FACTORIO_VERSION
+function get_factorio_version()
+	if not FACTORIO_VERSION then
+	   local f = assert(io.open(FACTORIO_ROOT .. 'data/changelog.txt', 'r'))
+
+	   local line,version
+	   while true do
+		   line = f:read('*line')
+		   version =
+				line:match("Version:%s*(%d+%.%d+%.%d+)$") or
+				line:match("Version:%s*(%d+%.%d+)$") or
+				line:match("Version:%s*(%d+)$")
+
+		   if version then
+				io.stderr:write(("Factorio Version: %s\n"):format(version))
+			   FACTORIO_VERSION = version
+			   break
+		   end
+	   end
+	end
+
+	return FACTORIO_VERSION
+end
+
+
 function Img(src)
     -- Convenience function for IMG tags
     return string.format([[<IMG SRC="%s" />]], src)
@@ -55,9 +80,10 @@ function file_exists(name)
 end
 
 data = ExtendTable:new({})
-function load_data(files, rel_path)
+function load_data(files)
     for _, filename in ipairs(files) do
-        path = FACTORIO_ROOT..rel_path..filename
+		--local util = dofile(("%sdata/core/lualib/util.lua"):format(FACTORIO_ROOT))
+        path = FACTORIO_ROOT..filename
         dofile(path)
     end
 end

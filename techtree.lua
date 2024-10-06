@@ -2,18 +2,31 @@
 
 require "utils"
 
+FACTORIO_VERSION = '1.1.110'
+
 -- Recipes to load
-TECH_FILES = {
-    "inserter.lua",
-    "technology.lua",
-}
+if FACTORIO_VERSION >= '1.0.0' then
+	TECH_FILES = {
+		'data/core/lualib/util.lua',
+		'data/base/prototypes/technology.lua'
+	}
+else
+	TECH_FILES = {
+		"inserter.lua",
+		"technology.lua",
+	}
+
+	for i,v in ipairs(RECIPE_FILES) do RECIPE_FILES[i] = "data/base/prototypes/technology/" .. v end
+end
+
 -- Which string translation sections to use (now always in base.cfg)
 LANGUAGE_SECTIONS = {
     ["technology-name"] = true,
 }
 
 
-load_data(TECH_FILES, "data/base/prototypes/technology/")
+defines = dofile('./defines.lua')
+load_data(TECH_FILES)
 load_translations(LANGUAGE_SECTIONS)
 
 

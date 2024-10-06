@@ -3,21 +3,29 @@
 require "utils"
 
 
+FACTORIO_VERSION = get_factorio_version()
+
 -- Recipes to load
-RECIPE_FILES = {
-    "ammo.lua",
-    "capsule.lua",
-    "demo-furnace-recipe.lua",
-    "demo-recipe.lua",
-    "demo-turret.lua",
-    "equipment.lua",
-    "fluid-recipe.lua",
-    "furnace-recipe.lua",
-    "inserter.lua",
-    "module.lua",
-    "recipe.lua",
-    "turret.lua",
-}
+if FACTORIO_VERSION >= '1.0.0' then
+	RECIPE_FILES = {"data/base/prototypes/recipe.lua"}
+else
+	RECIPE_FILES = {
+		"ammo.lua",
+	    "capsule.lua",
+	    "demo-furnace-recipe.lua",
+		"demo-recipe.lua",
+	    "demo-turret.lua",
+		"equipment.lua",
+	    "fluid-recipe.lua",
+		"furnace-recipe.lua",
+	    "inserter.lua",
+		"module.lua",
+	    "recipe.lua",
+		"turret.lua",
+	}
+
+	for i,v in ipairs(RECIPE_FILES) do RECIPE_FILES[i] = "data/base/prototypes/recipe/" .. v end
+end
 -- Which string translation sections to use (now always in base.cfg)
 LANGUAGE_SECTIONS = {
     ["item-name"] = true,
@@ -151,7 +159,7 @@ CATEGORY_LABEL = {
 }
 
 
-load_data(RECIPE_FILES, "data/base/prototypes/recipe/")
+load_data(RECIPE_FILES)
 load_translations(LANGUAGE_SECTIONS)
 
 
@@ -204,7 +212,15 @@ for id, recipe in pairs(data) do
         if recipe.result ~= nil then    
             recipe.results = {{name = recipe.result, amount = recipe.result_count}}
         end
-    
+
+		-- kovarex-enrichment-process and nuclear-fuel-reprocessing both have .results structured as an array for some reason
+		for _,result in ipairs(recipe.results) do
+			if result.name == nil then
+				result.name = result[1]
+				result.amount = result[2]
+			end
+		end
+
         -- Define the recipe node first
         attr = {}
         -- If energy_required isn't specified, it defaults to 0.5
